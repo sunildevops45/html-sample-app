@@ -3,19 +3,21 @@
   become: yes
 
   tasks:
+    - name: Remove Jenkins repo
+      file:
+        path: /etc/apt/sources.list.d/jenkins.list
+        state: absent
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
     - name: Install Nginx
       apt:
         name: nginx
         state: present
-        update_cache: yes
 
-    - name: Start Nginx
-      service:
-        name: nginx
-        state: started
-        enabled: yes
-
-    - name: Copy HTML file
+    - name: Copy HTML
       copy:
         src: ../index.html
         dest: /var/www/html/index.html
