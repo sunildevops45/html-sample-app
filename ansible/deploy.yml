@@ -3,11 +3,7 @@
   become: yes
 
   tasks:
-    - name: Remove Jenkins repo
-      file:
-        path: /etc/apt/sources.list.d/jenkins.list
-        state: absent
-
+  
     - name: Update apt cache
       apt:
         update_cache: yes
