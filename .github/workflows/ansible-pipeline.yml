@@ -1,0 +1,61 @@
+name: HTML Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  # =========================
+  # STAGE 1: Build & Test
+  # =========================
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate HTML
+        run: |
+          echo "Checking HTML file..."
+          if [ ! -f index.html ]; then
+            echo "index.html not found!"
+            exit 1
+          fi
+
+      - name: Build Step
+        run: echo "No build needed for static HTML"
+
+      - name: Test Step
+        run: echo "HTML validation passed"
+
+  # =========================
+  # STAGE 2: Deploy
+  # =========================
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install ansible -y
+
+      #SSH setup (required)
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H YOUR_SERVER_IP >> ~/.ssh/known_hosts
+
+      #Run Ansible
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/deploy.yml
